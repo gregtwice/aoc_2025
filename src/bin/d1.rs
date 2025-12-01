@@ -1,5 +1,11 @@
+
+
 fn main() {
-    let input = include_str!("1.in");
+
+
+
+    let input = aoc::aoc_str!();
+
     let sol_1 = input
         .trim()
         .lines()
