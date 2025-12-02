@@ -1,3 +1,4 @@
+#![allow(unused)]
 use std::collections::HashMap;
 use std::env::join_paths;
 use std::fmt::Debug;

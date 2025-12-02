@@ -1,9 +1,4 @@
-
-
 fn main() {
-
-
-
     let input = aoc::aoc_str!();
 
     let sol_1 = input
