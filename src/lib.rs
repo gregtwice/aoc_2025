@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use std::env::join_paths;
 use std::fmt::Debug;
 use std::hash::Hash;
+use std::str::Lines;
 
 #[macro_export]
 macro_rules! aoc_input {
@@ -11,6 +12,17 @@ macro_rules! aoc_input {
         let file_path = &PathBuf::from(file!());
         let day = file_path.file_stem().unwrap().to_str().unwrap();
         let s = format!("inputs/{}.in", &day[1..2]);
+        std::fs::File::open(PathBuf::from(s)).unwrap()
+    }};
+}
+
+#[macro_export]
+macro_rules! aoc_ex {
+    () => {{
+        use std::path::PathBuf;
+        let file_path = &PathBuf::from(file!());
+        let day = file_path.file_stem().unwrap().to_str().unwrap();
+        let s = format!("inputs/{}.ine", &day[1..2]);
         std::fs::File::open(PathBuf::from(s)).unwrap()
     }};
 }
@@ -26,9 +38,20 @@ macro_rules! aoc_str {
     }};
 }
 
+#[macro_export]
+macro_rules! aoc_str_ex {
+    () => {{
+        use std::io::Read;
+        let mut contents = String::new();
+        let mut file = $crate::aoc_ex!();
+        file.read_to_string(&mut contents).unwrap();
+        contents
+    }};
+}
+#[derive(Debug)]
 pub struct CompleteGrid<C> {
-    width: u32,
-    height: u32,
+    pub width: u32,
+    pub height: u32,
     contents: Vec<C>,
 }
 
@@ -60,6 +83,19 @@ impl<C: Default + Debug + Copy> CompleteGrid<C> {
             .copied()
     }
 
+    pub fn neighbours(&self, row:usize, col:usize) -> Vec<C>{
+        let mut neigbours = vec![];
+        for nrow in (row.saturating_sub(1)..=(row+1).clamp(0,self.height as usize-1)){
+            for ncol in (col.saturating_sub(1)..=(col+1).clamp(0,self.width as usize-1)){
+                if ncol == col && nrow == row  {
+                    continue
+                }
+                    neigbours.push(*self.at(nrow, ncol));
+            }
+        }
+        neigbours
+    }
+
     fn row_col(&self, row: usize, col: usize) -> usize {
         row * self.width as usize + col
     }
@@ -81,9 +117,8 @@ impl<C: Default + Debug + Copy> CompleteGrid<C> {
         Self {
             width: width as u32,
             height: height as u32,
-            contents: s
-                .chars()
-                .filter(|c| c.is_ascii_alphanumeric() || *c == ' ')
+            contents: s.lines().map(str::chars).flatten()
+                .filter(|c| c.is_ascii() || *c == ' ')
                 .map(f)
                 .collect(),
         }
